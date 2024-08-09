@@ -115,7 +115,7 @@ namespace osu.Game.Rulesets.Taiko.Objects.Drawables
 
         public override bool OnPressed(KeyBindingPressEvent<TaikoAction> e)
         {
-            if (lastPressHandleTime == Time.Current)
+            if (/*lastPressHandleTime == Time.Current*/ false)
                 return true;
             if (Judged)
                 return false;
