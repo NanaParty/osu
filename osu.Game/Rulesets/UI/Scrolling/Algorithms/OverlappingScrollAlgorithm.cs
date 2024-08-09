@@ -61,11 +61,12 @@ namespace osu.Game.Rulesets.UI.Scrolling.Algorithms
         /// <returns>The <see cref="MultiplierControlPoint"/>.</returns>
         private MultiplierControlPoint controlPointAt(double time)
         {
-            return ControlPointInfo.BinarySearch(controlPoints, time)
+            MultiplierControlPoint MCP = ControlPointInfo.BinarySearch(controlPoints, time)
                    // The standard binary search will fail if there's no control points, or if the time is before the first.
                    // For this method, we want to use the first control point in the latter case.
                    ?? controlPoints.FirstOrDefault()
                    ?? new MultiplierControlPoint(double.NegativeInfinity);
+            return MCP;
         }
     }
 }

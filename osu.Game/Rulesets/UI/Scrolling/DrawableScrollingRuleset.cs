@@ -6,8 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FFmpeg.AutoGen;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
@@ -80,6 +82,7 @@ namespace osu.Game.Rulesets.UI.Scrolling
         /// The <see cref="MultiplierControlPoint"/>s that adjust the scrolling rate of <see cref="HitObject"/>s inside this <see cref="DrawableRuleset{TObject}"/>.
         /// </summary>
         protected readonly SortedList<MultiplierControlPoint> ControlPoints = new SortedList<MultiplierControlPoint>(Comparer<MultiplierControlPoint>.Default);
+        protected SortedList<MultiplierControlPoint> InvertedControlPoints = new SortedList<MultiplierControlPoint>(Comparer<MultiplierControlPoint>.Default);
 
         public IScrollingInfo ScrollingInfo => scrollingInfo;
 
@@ -153,6 +156,17 @@ namespace osu.Game.Rulesets.UI.Scrolling
 
             if (ControlPoints.Count == 0)
                 ControlPoints.Add(new MultiplierControlPoint { Velocity = Beatmap.Difficulty.SliderMultiplier });
+
+            ControlPoints.ForEach((cp) =>
+            {
+                _ = InvertedControlPoints.Add(new MultiplierControlPoint
+                {
+                Velocity = 1 / cp.Velocity,
+                Time = cp.Time,
+                EffectPoint = cp.EffectPoint,
+                BaseBeatLength = cp.BaseBeatLength,
+                });
+            });
         }
 
         protected override void LoadComplete()
@@ -186,9 +200,11 @@ namespace osu.Game.Rulesets.UI.Scrolling
                 case ScrollVisualisationMethod.Overlapping:
                     scrollingInfo.Algorithm.Value = new OverlappingScrollAlgorithm(ControlPoints);
                     break;
-
                 case ScrollVisualisationMethod.Constant:
                     scrollingInfo.Algorithm.Value = new ConstantScrollAlgorithm();
+                    break;
+                case ScrollVisualisationMethod.Combined:
+                    scrollingInfo.Algorithm.Value = new CombinedScrollAlgorithm(ControlPoints, InvertedControlPoints);
                     break;
             }
         }

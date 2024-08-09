@@ -89,6 +89,9 @@ namespace osu.Game.Tests.Visual
                         case ScrollVisualisationMethod.Sequential:
                             implementation = new SequentialScrollAlgorithm(ControlPoints);
                             break;
+                        case ScrollVisualisationMethod.Combined:
+                            implementation = new CombinedScrollAlgorithm(ControlPoints, ControlPoints);
+                            break;
                     }
                 }
             }

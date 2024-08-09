@@ -12,22 +12,20 @@ using System;
 
 namespace osu.Game.Rulesets.Taiko.Mods
 {
-    public class TaikoModConstantSpeed : Mod, IApplicableToDrawableRuleset<TaikoHitObject>
+    public class TaikoModCombinedSpeed : Mod, IApplicableToDrawableRuleset<TaikoHitObject>
     {
-        public override string Name => "Constant Speed";
-
-        public override string Acronym => "CS";
-
+        public override string Name => "Hybrid SV";
+        public override string Acronym => "HS";
         public override double ScoreMultiplier => 0.9;
-        public override Type[] IncompatibleMods => new[] { typeof(TaikoModCombinedSpeed) };
-        public override LocalisableString Description => "No more tricky speed changes!";
-        public override IconUsage? Icon => FontAwesome.Solid.Equals;
+        public override Type[] IncompatibleMods => new[] { typeof(TaikoModConstantSpeed) };
+        public override LocalisableString Description => "Combine Sequential and Overlapping scrolling algorithms for more tricky speed changes!";
+        public override IconUsage? Icon => FontAwesome.Solid.YinYang;
         public override ModType Type => ModType.Conversion;
 
         public void ApplyToDrawableRuleset(DrawableRuleset<TaikoHitObject> drawableRuleset)
         {
             var taikoRuleset = (DrawableTaikoRuleset)drawableRuleset;
-            taikoRuleset.VisualisationMethod = ScrollVisualisationMethod.Constant;
+            taikoRuleset.VisualisationMethod = ScrollVisualisationMethod.Combined;
         }
     }
 }

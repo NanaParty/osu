@@ -28,7 +28,7 @@ namespace osu.Game.Rulesets.Mania.Mods
         public void ApplyToDrawableRuleset(DrawableRuleset<ManiaHitObject> drawableRuleset)
         {
             var maniaRuleset = (DrawableManiaRuleset)drawableRuleset;
-            maniaRuleset.VisualisationMethod = ScrollVisualisationMethod.Constant;
+            maniaRuleset.VisualisationMethod = ScrollVisualisationMethod.Combined;
         }
     }
 }
