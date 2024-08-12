@@ -17,25 +17,26 @@ using osu.Game.Rulesets.UI;
 using osu.Game.Screens.Play;
 using osu.Game.Utils;
 using osu.Game.Rulesets.Taiko.UI;
+using osu.Framework.Graphics.Sprites;
 
 namespace osu.Game.Rulesets.Taiko.Mods
 {
-    public partial class TaikoModSingleTap : Mod, IApplicableToDrawableRuleset<TaikoHitObject>, IUpdatableByPlayfield
+    public partial class TaikoModAlternate : Mod, IApplicableToDrawableRuleset<TaikoHitObject>, IUpdatableByPlayfield
     {
-        public override string Name => @"Single Tap";
-        public override string Acronym => @"SG";
-        public override LocalisableString Description => @"One key for dons, one key for kats.";
+        public override string Name => @"Alternate";
+        public override string Acronym => @"AL";
+        public override LocalisableString Description => @"Don't hit the same side twice in a row!";
+
+        public override IconUsage? Icon => FontAwesome.Solid.Keyboard;
 
         public override double ScoreMultiplier => 1.0;
-        public override Type[] IncompatibleMods => new[] { typeof(ModAutoplay), typeof(ModRelax), typeof(TaikoModCinema), typeof(TaikoModAlternate) };
+        public override Type[] IncompatibleMods => new[] { typeof(ModAutoplay), typeof(ModRelax), typeof(TaikoModCinema), typeof(TaikoModSingleTap) };
         public override ModType Type => ModType.Conversion;
 
         private DrawableTaikoRuleset ruleset = null!;
 
         private TaikoPlayfield playfield { get; set; } = null!;
-
-        private TaikoAction? lastAcceptedCentreAction { get; set; }
-        private TaikoAction? lastAcceptedRimAction { get; set; }
+        private TaikoAction? lastAcceptedAction { get; set; }
 
         /// <summary>
         /// A tracker for periods where single tap should not be enforced (i.e. non-gameplay periods).
@@ -74,8 +75,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
         {
             if (!nonGameplayPeriods.IsInAny(gameplayClock.CurrentTime)) return;
 
-            lastAcceptedCentreAction = null;
-            lastAcceptedRimAction = null;
+            lastAcceptedAction = null;
         }
 
         private bool checkCorrectAction(TaikoAction action)
@@ -87,19 +87,27 @@ namespace osu.Game.Rulesets.Taiko.Mods
             if (playfield.HitObjectContainer.AliveObjects.FirstOrDefault(h => h.Result?.HasResult != true)?.HitObject is TaikoStrongableHitObject hitObject
                 && hitObject.IsStrong
                 && hitObject is not DrumRoll)
-                return true;
-
-            if ((action == TaikoAction.LeftCentre || action == TaikoAction.RightCentre)
-                && (lastAcceptedCentreAction == null || lastAcceptedCentreAction == action))
             {
-                lastAcceptedCentreAction = action;
+                lastAcceptedAction = null;
                 return true;
             }
 
-            if ((action == TaikoAction.LeftRim || action == TaikoAction.RightRim)
-                && (lastAcceptedRimAction == null || lastAcceptedRimAction == action))
+            // Always pass as true if no action has been inputted.
+            if (lastAcceptedAction == null)
             {
-                lastAcceptedRimAction = action;
+                lastAcceptedAction = action;
+                return true;
+            }
+
+            // Determine if the new action is on the opposite side of the last accepted action.
+            bool isOppositeSide =
+                (lastAcceptedAction == TaikoAction.LeftCentre || lastAcceptedAction == TaikoAction.LeftRim)
+                ? (action == TaikoAction.RightCentre || action == TaikoAction.RightRim)
+                : (action == TaikoAction.LeftCentre || action == TaikoAction.LeftRim);
+
+            if (isOppositeSide)
+            {
+                lastAcceptedAction = action;
                 return true;
             }
 
@@ -108,9 +116,9 @@ namespace osu.Game.Rulesets.Taiko.Mods
 
         private partial class InputInterceptor : Component, IKeyBindingHandler<TaikoAction>
         {
-            private readonly TaikoModSingleTap mod;
+            private readonly TaikoModAlternate mod;
 
-            public InputInterceptor(TaikoModSingleTap mod)
+            public InputInterceptor(TaikoModAlternate mod)
             {
                 this.mod = mod;
             }
