@@ -18,6 +18,7 @@ using osu.Game.Screens.Play;
 using osu.Game.Utils;
 using osu.Game.Rulesets.Taiko.UI;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Logging;
 
 namespace osu.Game.Rulesets.Taiko.Mods
 {
@@ -36,7 +37,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
         private DrawableTaikoRuleset ruleset = null!;
 
         private TaikoPlayfield playfield { get; set; } = null!;
-        private TaikoAction? lastAcceptedAction { get; set; }
+        private bool? lastActionWasRight { get; set; }
 
         /// <summary>
         /// A tracker for periods where single tap should not be enforced (i.e. non-gameplay periods).
@@ -75,7 +76,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
         {
             if (!nonGameplayPeriods.IsInAny(gameplayClock.CurrentTime)) return;
 
-            lastAcceptedAction = null;
+            lastActionWasRight = null;
         }
 
         private bool checkCorrectAction(TaikoAction action)
@@ -88,26 +89,26 @@ namespace osu.Game.Rulesets.Taiko.Mods
                 && hitObject.IsStrong
                 && hitObject is not DrumRoll)
             {
-                lastAcceptedAction = null;
                 return true;
             }
 
             // Always pass as true if no action has been inputted.
-            if (lastAcceptedAction == null)
+            if (lastActionWasRight == null)
             {
-                lastAcceptedAction = action;
+                lastActionWasRight = isRightSide(action);
                 return true;
             }
 
-            // Determine if the new action is on the opposite side of the last accepted action.
-            bool isOppositeSide =
-                (lastAcceptedAction == TaikoAction.LeftCentre || lastAcceptedAction == TaikoAction.LeftRim)
-                ? (action == TaikoAction.RightCentre || action == TaikoAction.RightRim)
-                : (action == TaikoAction.LeftCentre || action == TaikoAction.LeftRim);
-
-            if (isOppositeSide)
+            // A boolean check to see if the taikoAction is on the right side.
+            static bool isRightSide(TaikoAction taikoAction)
             {
-                lastAcceptedAction = action;
+                return taikoAction == TaikoAction.RightCentre || taikoAction == TaikoAction.RightRim;
+            }
+
+            // Pass if last input's side was not the current input's.
+            if (lastActionWasRight != isRightSide(action))
+            {
+                lastActionWasRight = isRightSide(action);
                 return true;
             }
 
