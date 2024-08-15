@@ -19,6 +19,7 @@ using osu.Game.Utils;
 using osu.Game.Rulesets.Taiko.UI;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
+using osu.Game.Rulesets.Taiko.Judgements;
 
 namespace osu.Game.Rulesets.Taiko.Mods
 {
@@ -84,20 +85,12 @@ namespace osu.Game.Rulesets.Taiko.Mods
             if (nonGameplayPeriods.IsInAny(gameplayClock.CurrentTime))
                 return true;
 
-            // If next hit object is strong, allow usage of all actions. Strong drumrolls are ignored in this check.
-            if (playfield.HitObjectContainer.AliveObjects.FirstOrDefault(h => h.Result?.HasResult != true)?.HitObject is TaikoStrongableHitObject hitObject
-                && hitObject.IsStrong
-                && hitObject is not DrumRoll)
-            {
-                return true;
-            }
+            // Obtain a reference of the current and last hit object.
+            var currentHitObject = playfield.HitObjectContainer.AliveObjects.FirstOrDefault(h => h.Result?.HasResult != true)?.HitObject;
+            var lastHitObject = playfield.HitObjectContainer.AliveObjects.LastOrDefault(h => h.Result?.HasResult == true)?.HitObject;
 
-            // Always pass as true if no action has been inputted.
-            if (lastActionWasRight == null)
-            {
-                lastActionWasRight = isRightSide(action);
-                return true;
-            }
+            Logger.Log(playfield.HitObjectContainer.AliveObjects.Count().ToString());
+            Logger.Log(playfield.HitObjectContainer.Objects.Count().ToString());
 
             // A boolean check to see if the taikoAction is on the right side.
             static bool isRightSide(TaikoAction taikoAction)
@@ -105,10 +98,45 @@ namespace osu.Game.Rulesets.Taiko.Mods
                 return taikoAction == TaikoAction.RightCentre || taikoAction == TaikoAction.RightRim;
             }
 
-            // Pass if last input's side was not the current input's.
-            if (lastActionWasRight != isRightSide(action))
+            // if true, the object should allow all actions.
+            static bool passthrough(HitObject? hitObject)
             {
-                lastActionWasRight = isRightSide(action);
+                // If is a spinner, allow mashing.
+                if (hitObject is Swell)
+                    return true;
+
+                // If it is a drumroll, allow mashing.
+                if (hitObject is DrumRoll)
+                    return true;
+
+                // If it is a strong, allow any.
+                // Attempting to hit a strong properly may result in the player being confused on which key should be hit next.
+                if (hitObject is TaikoStrongableHitObject currentStrong && currentStrong.IsStrong)
+                    return true;
+
+                return false;
+            }
+
+            bool actionIsRight = isRightSide(action);
+
+            // If the next or last hit object is strong, a spinner, or a drumroll, allow any input.
+            if (passthrough(currentHitObject) || passthrough(lastHitObject))
+            {
+                lastActionWasRight = actionIsRight;
+                return true;
+            }
+
+            // Always pass as true if no action has been inputted.
+            if (lastActionWasRight == null)
+            {
+                lastActionWasRight = actionIsRight;
+                return true;
+            }
+
+            // Pass if the current action's side is different from the last input's side.
+            if (lastActionWasRight != actionIsRight)
+            {
+                lastActionWasRight = actionIsRight;
                 return true;
             }
 
