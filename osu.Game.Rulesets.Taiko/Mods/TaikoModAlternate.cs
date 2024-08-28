@@ -39,6 +39,8 @@ namespace osu.Game.Rulesets.Taiko.Mods
 
         private TaikoPlayfield playfield { get; set; } = null!;
         private bool? lastActionWasRight { get; set; }
+        private bool lastNoteWasSafe { get; set; }
+        private bool nextNoteIsSafe { get; set; }
 
         /// <summary>
         /// A tracker for periods where single tap should not be enforced (i.e. non-gameplay periods).
@@ -89,6 +91,13 @@ namespace osu.Game.Rulesets.Taiko.Mods
             var currentHitObject = playfield.HitObjectContainer.AliveObjects.FirstOrDefault(h => h.Result?.HasResult != true)?.HitObject;
             var lastHitObject = playfield.HitObjectContainer.AliveObjects.LastOrDefault(h => h.Result?.HasResult == true)?.HitObject;
 
+
+            if (currentHitObject != null)
+                nextNoteIsSafe = passthrough(currentHitObject);
+
+            if (lastHitObject != null)
+                lastNoteWasSafe = passthrough(currentHitObject);
+
             Logger.Log(playfield.HitObjectContainer.AliveObjects.Count().ToString());
             Logger.Log(playfield.HitObjectContainer.Objects.Count().ToString());
 
@@ -120,7 +129,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
             bool actionIsRight = isRightSide(action);
 
             // If the next or last hit object is strong, a spinner, or a drumroll, allow any input.
-            if (passthrough(currentHitObject) || passthrough(lastHitObject))
+            if (lastNoteWasSafe || nextNoteIsSafe)
             {
                 lastActionWasRight = actionIsRight;
                 return true;
@@ -139,7 +148,6 @@ namespace osu.Game.Rulesets.Taiko.Mods
                 lastActionWasRight = actionIsRight;
                 return true;
             }
-
             return false;
         }
 
