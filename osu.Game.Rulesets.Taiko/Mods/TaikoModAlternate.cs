@@ -77,15 +77,15 @@ namespace osu.Game.Rulesets.Taiko.Mods
 
         public void Update(Playfield playfield)
         {
-            if (!nonGameplayPeriods.IsInAny(gameplayClock.CurrentTime)) return;
+            //if (!nonGameplayPeriods.IsInAny(gameplayClock.CurrentTime)) return;
 
-            lastActionWasRight = null;
+            //lastActionWasRight = null;
         }
 
         private bool checkCorrectAction(TaikoAction action)
         {
-            if (nonGameplayPeriods.IsInAny(gameplayClock.CurrentTime))
-                return true;
+            //if (nonGameplayPeriods.IsInAny(gameplayClock.CurrentTime))
+            //    return true;
 
             // Obtain a reference of the current and last hit object.
             var currentHitObject = playfield.HitObjectContainer.AliveObjects.FirstOrDefault(h => h.Result?.HasResult != true)?.HitObject;
@@ -96,7 +96,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
                 nextNoteIsSafe = passthrough(currentHitObject);
 
             if (lastHitObject != null)
-                lastNoteWasSafe = passthrough(currentHitObject);
+                lastNoteWasSafe = passthrough(lastHitObject);
 
             Logger.Log(playfield.HitObjectContainer.AliveObjects.Count().ToString());
             Logger.Log(playfield.HitObjectContainer.Objects.Count().ToString());
