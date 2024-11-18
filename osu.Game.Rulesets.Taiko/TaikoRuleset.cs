@@ -130,7 +130,6 @@ namespace osu.Game.Rulesets.Taiko
                         new TaikoModEasy(),
                         new TaikoModNoFail(),
                         new MultiMod(new TaikoModHalfTime(), new TaikoModDaycore()),
-                        new TaikoModSimplifiedRhythm(),
                     };
 
                 case ModType.DifficultyIncrease:
@@ -153,6 +152,7 @@ namespace osu.Game.Rulesets.Taiko
                         new TaikoModSwap(),
                         new TaikoModSingleTap(),
                         new TaikoModConstantSpeed(),
+                        new TaikoModAdvanced(),
                     };
 
                 case ModType.Automation:
