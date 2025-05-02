@@ -50,7 +50,7 @@ namespace osu.Game.Rulesets.Taiko.UI
             : base(ruleset, beatmap, mods)
         {
             Direction.Value = ScrollingDirection.Left;
-            VisualisationMethod = ScrollVisualisationMethod.Overlapping;
+            VisualisationMethod = ScrollVisualisationMethod.Elastic;
         }
 
         [BackgroundDependencyLoader(true)]

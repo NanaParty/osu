@@ -14,6 +14,9 @@ namespace osu.Game.Configuration
         Overlapping,
 
         [Description("Constant")]
-        Constant
+        Constant,
+
+        [Description("Elastic")]
+        Elastic
     }
 }

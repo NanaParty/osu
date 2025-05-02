@@ -196,6 +196,9 @@ namespace osu.Game.Rulesets.UI.Scrolling
                 case ScrollVisualisationMethod.Constant:
                     scrollingInfo.Algorithm.Value = new ConstantScrollAlgorithm();
                     break;
+                case ScrollVisualisationMethod.Elastic:
+                    scrollingInfo.Algorithm.Value = new ElasticScrollAlgorithm(ControlPoints);
+                    break;
             }
         }
 
