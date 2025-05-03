@@ -1,8 +1,13 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
+using System.Collections.Generic;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Localisation;
+using osu.Game.Configuration;
+using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Objects.Drawables;
@@ -18,6 +23,14 @@ namespace osu.Game.Rulesets.Taiko.Mods
     {
         public override LocalisableString Description => @"Beats fade out before you hit them!";
         public override double ScoreMultiplier => UsesDefaultConfiguration ? 1.06 : 1;
+
+        [SettingSource("Visual Clarity", "Adjust how hidden the hitobjects are.", SettingControlType = typeof(MultiplierSettingsSlider))]
+        public BindableNumber<double> HiddenMultiplier { get; } = new(1)
+        {
+            MinValue = 0.4f,
+            MaxValue = 1.4f,
+            Precision = 0.01f,
+        };
 
         /// <summary>
         /// How far away from the hit target should hitobjects start to fade out.
@@ -50,8 +63,8 @@ namespace osu.Game.Rulesets.Taiko.Mods
                 case DrawableDrumRollTick:
                 case DrawableHit:
                     double preempt = drawableRuleset.TimeRange.Value / drawableRuleset.ControlPointAt(hitObject.HitObject.StartTime).Multiplier;
-                    double start = hitObject.HitObject.StartTime - preempt * fade_out_start_time;
-                    double duration = preempt * fade_out_duration;
+                    double start = hitObject.HitObject.StartTime - preempt * (fade_out_start_time * HiddenMultiplier.Value);
+                    double duration = preempt * (fade_out_duration * 1);
 
                     using (hitObject.BeginAbsoluteSequence(start))
                     {
@@ -69,5 +82,15 @@ namespace osu.Game.Rulesets.Taiko.Mods
                     break;
             }
         }
+
+        public override IEnumerable<(LocalisableString setting, LocalisableString value)> SettingDescription
+        {
+            get
+            {
+                if (!HiddenMultiplier.IsDefault)
+                    yield return ("Speed change", $"{HiddenMultiplier.Value:N2}x");
+            }
+        }
+        public override string ExtendedIconInformation => HiddenMultiplier.IsDefault ? string.Empty : FormattableString.Invariant($"{HiddenMultiplier.Value:N2}x");
     }
 }
