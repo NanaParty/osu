@@ -19,7 +19,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
     {
         public override string Name => "Advanced Rhythm";
         public override string Acronym => "AR";
-        public override double ScoreMultiplier => 0.4;
+        public override double ScoreMultiplier => 0.96;
         public override LocalisableString Description => "Trickify simple rhythms!";
         public override ModType Type => ModType.DifficultyIncrease;
         public override Type[] IncompatibleMods => new[] { typeof(TaikoModSimplifiedRhythm) };
@@ -32,6 +32,9 @@ namespace osu.Game.Rulesets.Taiko.Mods
 
         [SettingSource("1/3 to 1/6 conversion", "Converts 1/3 patterns to 1/6 rhythm.")]
         public Bindable<bool> OneThirdConversion { get; } = new BindableBool();
+
+        [SettingSource("Invert additional note", "Set the added note to be the opposite color of the previous one.")]
+        public Bindable<bool> InvertAddition { get; } = new BindableBool();
 
         public void ApplyToBeatmap(IBeatmap beatmap)
         {
@@ -54,17 +57,21 @@ namespace osu.Game.Rulesets.Taiko.Mods
             {
                 for (int i = 1; i < hits.Length; i++)
                 {
-                    var currentNote = hits[i - 1];
-                    var nextNote = hits[i];
-                    double snapValue = getSnapBetweenNotes(controlPointInfo, currentNote, nextNote);
-
-                    if (snapValue == baseRhythm && !currentNote.Samples.Any(i => i.Name == Audio.HitSampleInfo.HIT_FINISH))
+                    Hit currentNote = hits[i - 1];
+                    TaikoHitObject taikoHitObject = currentNote;
+                    Hit nextNote = hits[i];
+                    double snapValue = Math.Round(getSnapBetweenNotes(controlPointInfo, currentNote, nextNote) * 10) / 10;
+                    if (snapValue == baseRhythm && !currentNote.IsStrong && taikoHitObject is not Swell or DrumRoll)
                     {
+                        var noteSample = currentNote.Samples;
                         toAdd.Add(new Hit
                         {
                             StartTime = currentNote.StartTime + (nextNote.StartTime - currentNote.StartTime) / 2,
-                            Samples = currentNote.Samples,
+                            Samples = InvertAddition.Value ? currentNote.Samples : currentNote.Samples,
                             HitWindows = currentNote.HitWindows,
+                            Type = InvertAddition.Value
+                                ? (currentNote.Type == HitType.Centre ? HitType.Rim : HitType.Centre)
+                                : currentNote.Type
                         });
                     }
                 }
@@ -74,10 +81,11 @@ namespace osu.Game.Rulesets.Taiko.Mods
             taikoBeatmap.HitObjects.Sort((a, b) => a.StartTime.CompareTo(b.StartTime));
         }
 
-        private int getSnapBetweenNotes(ControlPointInfo controlPointInfo, Hit currentNote, Hit nextNote)
+        private double getSnapBetweenNotes(ControlPointInfo controlPointInfo, TaikoHitObject currentNote, TaikoHitObject nextNote)
         {
             var currentTimingPoint = controlPointInfo.TimingPointAt(currentNote.StartTime);
-            return controlPointInfo.GetClosestBeatDivisor(currentTimingPoint.Time + (nextNote.StartTime - currentNote.StartTime));
+            double difference = nextNote.StartTime - currentNote.StartTime;
+            return 1 / (difference / currentTimingPoint.BeatLength);
         }
     }
 }
