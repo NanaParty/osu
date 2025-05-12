@@ -146,6 +146,7 @@ namespace osu.Game.Rulesets.Taiko
                         new TaikoModHidden(),
                         new TaikoModFlashlight(),
                         new ModAccuracyChallenge(),
+                        new TaikoModAdvancedRhythm()
                     };
 
                 case ModType.Conversion:

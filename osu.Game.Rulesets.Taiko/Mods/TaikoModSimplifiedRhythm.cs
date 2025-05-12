@@ -22,6 +22,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
         public override double ScoreMultiplier => 0.6;
         public override LocalisableString Description => "Simplify tricky rhythms!";
         public override ModType Type => ModType.DifficultyReduction;
+        public override Type[] IncompatibleMods => new[] { typeof(TaikoModAdvancedRhythm) };
 
         [SettingSource("1/3 to 1/2 conversion", "Converts 1/3 patterns to 1/2 rhythm.")]
         public Bindable<bool> OneThirdConversion { get; } = new BindableBool();
