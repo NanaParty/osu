@@ -22,7 +22,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
     {
         public override string Name => "LinedColt Mod";
         public override string Acronym => "PP";
-        public override double ScoreMultiplier => (SpeedChange.Value * 43271894) % 1.04;
+        public override double ScoreMultiplier => (SpeedChange.Value * 13771894 * DateTime.Now.Millisecond) % 1.1;
         public override LocalisableString Description => "if you change the customise slider there is a chance you can roll a good multplier";
         public override ModType Type => ModType.Fun;
         public override IconUsage? Icon => FontAwesome.Solid.BlenderPhone;
@@ -83,7 +83,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
 
             void processPattern(int patternEndIndex)
             {
-                if (patternEndIndex - patternStartIndex < 16) return;
+                if (patternEndIndex - patternStartIndex < 24) return;
                 int k = 0;
                 // Iterate through the pattern
                 for (int j = patternStartIndex; j < patternEndIndex; j++)
