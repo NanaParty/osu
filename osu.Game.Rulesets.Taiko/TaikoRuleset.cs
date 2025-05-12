@@ -175,6 +175,7 @@ namespace osu.Game.Rulesets.Taiko
                         new MultiMod(new ModWindUp(), new ModWindDown()),
                         new TaikoModMuted(),
                         new ModAdaptiveSpeed(),
+                        new TaikoModFlip(),
                         new TaikoModLunatic(),
                         new TaikoModAetherRitual(),
                         new TaikoModLinedColtMod()
