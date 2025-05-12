@@ -5,25 +5,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Configuration;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.ControlPoints;
 using osu.Game.Configuration;
+using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Taiko.Beatmaps;
 using osu.Game.Rulesets.Taiko.Objects;
 
 namespace osu.Game.Rulesets.Taiko.Mods
 {
-    public class TaikoModLinedColtMod : Mod, IApplicableToBeatmap
+    public class TaikoModLinedColtMod : Mod, IApplicableToBeatmap, IReadFromConfig
     {
         public override string Name => "LinedColt Mod";
         public override string Acronym => "PP";
-        public override double ScoreMultiplier => 0.8;
-        public override LocalisableString Description => "A descriptor representing text that can be localised and formatted.";
+        public override double ScoreMultiplier => (SpeedChange.Value * 43271894) % 1.04;
+        public override LocalisableString Description => "if you change the customise slider there is a chance you can roll a good multplier";
         public override ModType Type => ModType.Fun;
         public override IconUsage? Icon => FontAwesome.Solid.Crow;
+        private OsuConfigManager? osuConfigManager;
+
+        [SettingSource("LinedColt (tm) modifier machiner", "🦅 Eagle Emoji | Meaning, Copy And Paste", SettingControlType = typeof(MultiplierSettingsSlider))]
+        public BindableNumber<double> SpeedChange { get; } = new BindableDouble(1)
+        {
+            MinValue = 0,
+            MaxValue = 1,
+            Precision = 0.00001,
+        };
 
         public void ApplyToBeatmap(IBeatmap beatmap)
         {
@@ -98,6 +109,11 @@ namespace osu.Game.Rulesets.Taiko.Mods
         {
             var currentTimingPoint = controlPointInfo.TimingPointAt(currentNote.StartTime);
             return controlPointInfo.GetClosestBeatDivisor(currentTimingPoint.Time + (nextNote.StartTime - currentNote.StartTime));
+        }
+
+        public void ReadFromConfig(OsuConfigManager config)
+        {
+            osuConfigManager = config;
         }
     }
 }
