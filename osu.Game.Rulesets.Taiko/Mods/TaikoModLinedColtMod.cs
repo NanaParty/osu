@@ -18,15 +18,14 @@ using osu.Game.Rulesets.Taiko.Objects;
 
 namespace osu.Game.Rulesets.Taiko.Mods
 {
-    public class TaikoModLinedColtMod : Mod, IApplicableToBeatmap, IReadFromConfig
+    public class TaikoModLinedColtMod : Mod, IApplicableToBeatmap
     {
         public override string Name => "LinedColt Mod";
         public override string Acronym => "PP";
         public override double ScoreMultiplier => (SpeedChange.Value * 43271894) % 1.04;
         public override LocalisableString Description => "if you change the customise slider there is a chance you can roll a good multplier";
         public override ModType Type => ModType.Fun;
-        public override IconUsage? Icon => FontAwesome.Solid.Crow;
-        private OsuConfigManager? osuConfigManager;
+        public override IconUsage? Icon => FontAwesome.Solid.BlenderPhone;
 
         [SettingSource("LinedColt (tm) modifier machiner", "🦅 Eagle Emoji | Meaning, Copy And Paste", SettingControlType = typeof(MultiplierSettingsSlider))]
         public BindableNumber<double> SpeedChange { get; } = new BindableDouble(1)
@@ -84,6 +83,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
 
             void processPattern(int patternEndIndex)
             {
+                if (patternEndIndex - patternStartIndex < 16) return;
                 int k = 0;
                 // Iterate through the pattern
                 for (int j = patternStartIndex; j < patternEndIndex; j++)
@@ -109,11 +109,6 @@ namespace osu.Game.Rulesets.Taiko.Mods
         {
             var currentTimingPoint = controlPointInfo.TimingPointAt(currentNote.StartTime);
             return controlPointInfo.GetClosestBeatDivisor(currentTimingPoint.Time + (nextNote.StartTime - currentNote.StartTime));
-        }
-
-        public void ReadFromConfig(OsuConfigManager config)
-        {
-            osuConfigManager = config;
         }
     }
 }
