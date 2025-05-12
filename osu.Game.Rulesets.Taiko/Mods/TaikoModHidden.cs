@@ -24,7 +24,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
         public override LocalisableString Description => @"Beats fade out before you hit them!";
         public override double ScoreMultiplier => UsesDefaultConfiguration ? 1.06 : 1;
 
-        [SettingSource("Visual Clarity", "Adjust how hidden the hitobjects are.", SettingControlType = typeof(MultiplierSettingsSlider))]
+        [SettingSource("Fade Distance", "Adjust how hidden the hitobjects are.", SettingControlType = typeof(MultiplierSettingsSlider))]
         public BindableNumber<double> HiddenMultiplier { get; } = new(1)
         {
             MinValue = 0.4f,
