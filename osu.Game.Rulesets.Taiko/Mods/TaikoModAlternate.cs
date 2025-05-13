@@ -28,21 +28,7 @@ namespace osu.Game.Rulesets.Taiko.Mods
 
         protected override bool CheckValidNewAction(TaikoAction action)
         {
-            var nextHitObject = Playfield.HitObjectContainer.AliveObjects.FirstOrDefault(h => h.Result?.HasResult != true)?.HitObject;
-            var previousHitObject = Playfield.HitObjectContainer.AliveObjects.LastOrDefault(h => h.Result?.HasResult == true)?.HitObject;
-
-            // Allow all actions if the next or previous hit object is a strong hit (excluding strong drumrolls).
-            if ((nextHitObject is TaikoStrongableHitObject { IsStrong: true } && nextHitObject is not DrumRoll) ||
-                (previousHitObject is TaikoStrongableHitObject { IsStrong: true } && previousHitObject is not DrumRoll))
-                return true;
-
-            bool sideRight = action is TaikoAction.RightRim or TaikoAction.RightCentre;
-
-            // Force alternating by disallowing the same side twice in a row
-            if (lastActionWasRight == sideRight) return false;
-
-            lastActionWasRight = sideRight;
-            return true;
+            return BongoSupport.Value ? ddkkCheck(action) : kddkCheck(action);
         }
 
         private bool kddkCheck(TaikoAction action)
