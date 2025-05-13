@@ -22,19 +22,36 @@ namespace osu.Game.Rulesets.Taiko.Mods
     {
         public override string Name => "LinedColt Mod";
         public override string Acronym => "PP";
-        public override double ScoreMultiplier => (SpeedChange.Value * 13771894 * DateTime.Now.Millisecond) % 1.1;
-        public override LocalisableString Description => "if you change the customise slider there is a chance you can roll a good multplier";
+        public override double ScoreMultiplier => rollFruit();
+        public override LocalisableString Description => $"Press the button in the customize tab to spin for a multiplier. (64% for 0.25) | (25.9% for 0.5) | (6.3% for 0.75) | (5.53% for 1) | (1.63% for 1.5) | (0.21% for 2)";
         public override ModType Type => ModType.Fun;
         public override IconUsage? Icon => FontAwesome.Solid.BlenderPhone;
 
-        [SettingSource("LinedColt (tm) modifier machiner", "🦅 Eagle Emoji | Meaning, Copy And Paste", SettingControlType = typeof(MultiplierSettingsSlider))]
-        public BindableNumber<double> SpeedChange { get; } = new BindableDouble(1)
-        {
-            MinValue = 0,
-            MaxValue = 1,
-            Precision = 0.00001,
-        };
+        [SettingSource("Roll", "Press this button to roll a multiplier.")]
+        public BindableBool AdjustPitch { get; } = new BindableBool();
 
+        private double rollFruit()
+        {
+            (double weight, double multip)[] rarities = [
+                (64, 0.25),
+                (25.9, 0.5),
+                (6.3, 0.75),
+                (5.53, 1),
+                (1.63, 1.5),
+                (0.21, 2),
+            ];
+
+            double totalWeight = rarities.Aggregate(0.0, (acc, cur) => acc += cur.weight);
+            double roll = new Random().NextDouble() * totalWeight;
+            foreach (var rarity in rarities)
+            {
+                if (roll < rarity.weight)
+                    return rarity.multip; //+ (Framework.Utils.RNG.NextDouble() * 0.1);
+
+                roll -= rarity.weight;
+            }
+            return 0;
+        }
         public void ApplyToBeatmap(IBeatmap beatmap)
         {
             var taikoBeatmap = (TaikoBeatmap)beatmap;
